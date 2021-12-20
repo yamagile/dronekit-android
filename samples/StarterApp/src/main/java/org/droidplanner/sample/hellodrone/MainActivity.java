@@ -2,12 +2,15 @@ package org.droidplanner.sample.hellodrone;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+//import android.support.annotation.NonNull;
+//import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
@@ -53,6 +56,9 @@ import java.util.List;
 
 import static com.o3dr.android.client.apis.ExperimentalApi.getApi;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 public class MainActivity extends AppCompatActivity implements DroneListener, TowerListener, LinkListener {
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -79,6 +85,10 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     private String videoTag = "testvideotag";
 
     Handler mainHandler;
+
+    // add 3d
+    MyGLView glView;
+    private GestureDetector gesDetector = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,6 +202,19 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         mediaCodecManager = new MediaCodecManager(mediaCodecHandler);
 
         mainHandler = new Handler(getApplicationContext().getMainLooper());
+
+        // add 3d
+        glView = (MyGLView)findViewById(R.id.surfaceView);
+//        glView.setEGLConfigChooser(8, 8, 8, 8, 8, 8);
+//        glView.setRenderer(new MyRenderer());
+        gesDetector = new GestureDetector(this, glView);
+        final Button clearGLViewButton = (Button) findViewById(R.id.clearGLView);
+        clearGLViewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearGLView();
+            }
+        });
     }
 
     @Override
@@ -211,6 +234,34 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
         this.controlTower.unregisterDrone(this.drone);
         this.controlTower.disconnect();
+    }
+
+    // add 3d
+    @Override
+    protected void onResume(){
+        super.onResume();
+        glView.onResume();
+    }
+
+    // add 3d
+    @Override
+    protected void onPause(){
+        super.onPause();
+        glView.onPause();
+    }
+
+    // add 3d
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        return gesDetector.onTouchEvent(event);
+    }
+
+    // add 3d
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        Log.d("DispatchTouchEvent","call");
+        gesDetector.onTouchEvent(ev);
+        return super.dispatchTouchEvent(ev);
     }
 
     // DroneKit-Android Listener
@@ -233,6 +284,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
     @Override
     public void onDroneEvent(String event, Bundle extras) {
+        System.out.println(event);
         switch (event) {
             case AttributeEvent.STATE_CONNECTED:
                 alertUser("Drone Connected");
@@ -302,6 +354,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
     public void onBtnConnectTap(View view) {
         if (this.drone.isConnected()) {
+            alertUser("Drone already connected!");
             this.drone.disconnect();
         } else {
             Spinner connectionSelector = (Spinner) findViewById(R.id.selectConnectionType);
@@ -309,8 +362,9 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
             ConnectionParameter connectionParams = selectedConnectionType == ConnectionType.TYPE_USB
                 ? ConnectionParameter.newUsbConnection(null)
-                : ConnectionParameter.newUdpConnection(null);
+                : ConnectionParameter.newUdpConnection(null); // ConnectionParameter.newTcpConnection("192.168.43.173", null);
 
+            alertUser("Let's connect!");
             this.drone.connect(connectionParams);
         }
 
@@ -429,6 +483,15 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         TextView altitudeTextView = (TextView) findViewById(R.id.altitudeValueTextView);
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         altitudeTextView.setText(String.format("%3.1f", droneAltitude.getAltitude()) + "m");
+        // add 3d
+        double vehicleAltitude = droneAltitude.getAltitude();
+        Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
+        LatLong vehiclePosition = droneGps.getPosition();
+        if (droneGps.isValid()) {
+            glView.setPositions(vehiclePosition.getLatitude(), vehiclePosition.getLongitude(), vehicleAltitude);
+        } else {
+            Log.w(TAG, "GPS is invalid.");
+        }
     }
 
     protected void updateSpeed() {
@@ -450,6 +513,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
             LatLongAlt vehicle3DPosition = new LatLongAlt(vehiclePosition.getLatitude(), vehiclePosition.getLongitude(), vehicleAltitude);
             Home droneHome = this.drone.getAttribute(AttributeType.HOME);
             distanceFromHome = distanceBetweenPoints(droneHome.getCoordinate(), vehicle3DPosition);
+            // add 3d
         } else {
             distanceFromHome = 0;
         }
@@ -476,7 +540,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     // ==========================================================
 
     protected void alertUser(String message) {
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
         Log.d(TAG, message);
     }
 
@@ -492,6 +556,11 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         double dy = pointA.getLongitude() - pointB.getLongitude();
         double dz = pointA.getAltitude() - pointB.getAltitude();
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
+    // add 3d
+    private void clearGLView() {
+        glView.clearGLView();
     }
 
     private void takePhoto() {
