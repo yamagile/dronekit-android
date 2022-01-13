@@ -230,6 +230,335 @@
                 android:orientation="vertical"
                 android:gravity="center_horizontal">
 
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/takeoffTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="takeoff: "/>
+
+                        <EditText
+                            android:id="@+id/takeoffEditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="altitude (m)"
+                            android:inputType="numberDecimal" />
+
+                        <Button
+                            android:id="@+id/getTakeoff"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="onGetTakeoff"
+                            android:text="Get" />
+
+                        <Button
+                            android:id="@+id/setTakeoff"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="onSetTakeoff"
+                            android:text="Set" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/pauseTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="pause: "/>
+
+                        <EditText
+                            android:id="@+id/pauseEditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:visibility="invisible" />
+
+                        <Button
+                            android:id="@+id/getPause"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:visibility="invisible"
+                            android:text="Get" />
+
+                        <Button
+                            android:id="@+id/setPause"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="onSetPause"
+                            android:text="Set" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/goToTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="goTo: "/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal"
+                            android:gravity="center_horizontal">
+
+                            <EditText
+                                android:id="@+id/goToEditTextLat"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:hint="lat"
+                                android:inputType="numberDecimal" />
+
+                            <EditText
+                                android:id="@+id/goToEditTextLong"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="long"
+                                android:layout_weight="1"
+                                android:inputType="numberDecimal" />
+
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/getGoTo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="onGetGoTo"
+                            android:text="Get" />
+
+                        <Button
+                            android:id="@+id/setGoTo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="onSetGoTo"
+                            android:text="Set" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/lookAtTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="lookAt: "/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal"
+                            android:gravity="center_horizontal">
+
+                            <EditText
+                                android:id="@+id/lookAtEditTextLat"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:hint="lat"
+                                android:inputType="numberDecimal" />
+
+                            <EditText
+                                android:id="@+id/lookAtEditTextLong"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="long"
+                                android:layout_weight="1"
+                                android:inputType="numberDecimal" />
+
+                            <EditText
+                                android:id="@+id/lookAtEditTextAlt"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="alt"
+                                android:layout_weight="1"
+                                android:inputType="numberDecimal" />
+
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/getLookAt"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="onGetLookAt"
+                            android:text="Get" />
+
+                        <Button
+                            android:id="@+id/setLookAt"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="onSetLookAt"
+                            android:text="Set" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/climbToTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="climbTo: "/>
+
+                        <EditText
+                            android:id="@+id/climbToEditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="altitude (m)"
+                            android:inputType="numberDecimal" />
+
+                        <Button
+                            android:id="@+id/getClimbTo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="onGetClimbTo"
+                            android:text="Get" />
+
+                        <Button
+                            android:id="@+id/setClimbTo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="onSetClimbTo"
+                            android:text="Set" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/turnToTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="turnTo: "/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal"
+                            android:gravity="center_horizontal">
+
+                            <EditText
+                                android:id="@+id/turnToEditTextAngle"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:hint="angle"
+                                android:inputType="numberDecimal" />
+
+                            <EditText
+                                android:id="@+id/turnToEditTextRate"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="rate"
+                                android:layout_weight="1"
+                                android:inputType="numberSigned" />
+
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/getTurnTo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:visibility="invisible" />
+
+                        <Button
+                            android:id="@+id/setTurnTo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="onSetTurnTo"
+                            android:text="Set" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/manualTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="manual: "/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal"
+                            android:gravity="center_horizontal">
+
+                            <EditText
+                                android:id="@+id/manualEditTextX"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:hint="x"
+                                android:inputType="numberSigned" />
+
+                            <EditText
+                                android:id="@+id/manualEditTextY"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="y"
+                                android:layout_weight="1"
+                                android:inputType="numberSigned" />
+
+                            <EditText
+                                android:id="@+id/manualEditTextZ"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="z"
+                                android:layout_weight="1"
+                                android:inputType="numberSigned" />
+
+                        </LinearLayout>
+
+                        <ToggleButton
+                            android:id="@+id/toggleManual"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <Button
+                            android:id="@+id/setManual"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="onSetManual"
+                            android:text="Set" />
+
+                    </TableRow>
+
+                </TableLayout>
+
                 <org.droidplanner.sample.hellodrone.MyGLView
                     android:id="@+id/surfaceView"
                     android:layout_width="match_parent"

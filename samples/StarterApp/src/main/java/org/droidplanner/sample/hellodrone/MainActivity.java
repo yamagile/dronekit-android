@@ -17,9 +17,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
@@ -215,6 +219,23 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
                 clearGLView();
             }
         });
+
+        // add manual
+        ToggleButton toggleManual = (ToggleButton)findViewById(R.id.toggleManual);
+        toggleManual.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                ControlApi.getApi(drone).enableManualControl(isChecked, new ControlApi.ManualControlStateListener() {
+                    @Override
+                    public void onManualControlToggled(boolean isEnabled) {
+                        if (isEnabled) {
+                            alertUser("Enabled: Manual.");
+                        } else {
+                            alertUser("disabled: Manual.");
+                        }
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -264,6 +285,234 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         return super.dispatchTouchEvent(ev);
     }
 
+    // add takeoff
+    public void onGetTakeoff(View view){
+        EditText takeoff = (EditText)findViewById(R.id.takeoffEditText);
+        Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
+        Home droneHome = this.drone.getAttribute(AttributeType.HOME);
+        takeoff.setText(String.format("%3.1f", droneAltitude.getAltitude() - droneHome.getCoordinate().getAltitude()));
+    }
+    public void onSetTakeoff(View view) {
+        EditText takeoff = (EditText)findViewById(R.id.takeoffEditText);
+        if (!takeoff.getText().toString().isEmpty()) {
+            try {
+                double altitude = Double.parseDouble(takeoff.getText().toString());
+                // Take off
+                Log.d("ControlApiTest", "takeoff(" + altitude + ")");
+                ControlApi.getApi(this.drone).takeoff(altitude, new AbstractCommandListener() {
+                    @Override
+                    public void onSuccess() {
+                        alertUser("Success: Takeoff.");
+                    }
+                    @Override
+                    public void onError(int i) {
+                        alertUser("Error: Takeoff.");
+                    }
+                    @Override
+                    public void onTimeout() {
+                        alertUser("Timeout: Takeoff.");
+                    }
+                });
+            } catch (Exception e) {
+                alertUser("Exception: Takeoff.");
+            }
+        }
+    }
+
+    // add pause
+    public void onSetPause(View view) {
+        Log.d("ControlApiTest", "pauseAtCurrentLocation()");
+        ControlApi.getApi(this.drone).pauseAtCurrentLocation(new AbstractCommandListener() {
+            @Override
+            public void onSuccess() {
+                alertUser("Success: Pause.");
+            }
+            @Override
+            public void onError(int i) {
+                alertUser("Error: Pause.");
+            }
+            @Override
+            public void onTimeout() {
+                alertUser("Timeout: Pause.");
+            }
+        });
+    }
+
+    // add go to
+    public void onGetGoTo(View view){
+        EditText textLat = (EditText)findViewById(R.id.goToEditTextLat);
+        EditText textLong = (EditText)findViewById(R.id.goToEditTextLong);
+        Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
+        if (droneGps.isValid()) {
+            LatLong vehiclePosition = droneGps.getPosition();
+            textLat.setText(String.format("%.7f", vehiclePosition.getLatitude()));
+            textLong.setText(String.format("%.7f", vehiclePosition.getLongitude()));
+        } else {
+            alertUser("GPS is invalid: Go to.");
+        }
+    }
+    public void onSetGoTo(View view) {
+        EditText textLat = (EditText)findViewById(R.id.goToEditTextLat);
+        EditText textLong = (EditText)findViewById(R.id.goToEditTextLong);
+        if (!textLat.getText().toString().isEmpty() && !textLong.getText().toString().isEmpty()) {
+            try {
+                double latitude = Double.parseDouble(textLat.getText().toString());
+                double longitude = Double.parseDouble(textLong.getText().toString());
+                // Go To
+                LatLong latLong = new LatLong(latitude, longitude);
+                Log.d("ControlApiTest", "goTo(" + latLong + ", true)");
+                ControlApi.getApi(this.drone).goTo(latLong, true, new AbstractCommandListener() {
+                    @Override
+                    public void onSuccess() {
+                        alertUser("Success: Go to.");
+                    }
+                    @Override
+                    public void onError(int i) {
+                        alertUser("Error: Go to.");
+                    }
+                    @Override
+                    public void onTimeout() {
+                        alertUser("Timeout: Go to.");
+                    }
+                });
+            } catch (Exception e) {
+                alertUser("Exception: Go to.");
+            }
+        }
+    }
+
+    // add look at
+    public void onGetLookAt(View view){
+        EditText textLat = (EditText)findViewById(R.id.lookAtEditTextLat);
+        EditText textLong = (EditText)findViewById(R.id.lookAtEditTextLong);
+        EditText textAlt = (EditText)findViewById(R.id.lookAtEditTextAlt);
+        Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
+        if (droneGps.isValid()) {
+            LatLong vehiclePosition = droneGps.getPosition();
+            Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
+            textLat.setText(String.format("%.7f", vehiclePosition.getLatitude()));
+            textLong.setText(String.format("%.7f", vehiclePosition.getLongitude()));
+            textAlt.setText(String.format("%3.1f", droneAltitude.getAltitude()));
+        } else {
+            alertUser("GPS is invalid: Look at.");
+        }
+    }
+    public void onSetLookAt(View view) {
+        EditText textLat = (EditText)findViewById(R.id.lookAtEditTextLat);
+        EditText textLong = (EditText)findViewById(R.id.lookAtEditTextLong);
+        EditText textAlt = (EditText)findViewById(R.id.lookAtEditTextAlt);
+        if (!textLat.getText().toString().isEmpty() && !textLong.getText().toString().isEmpty() && !textAlt.getText().toString().isEmpty()) {
+            try {
+                double latitude = Double.parseDouble(textLat.getText().toString());
+                double longitude = Double.parseDouble(textLong.getText().toString());
+                double altitude = Double.parseDouble(textAlt.getText().toString());
+                // Look at
+                LatLongAlt latLongAlt = new LatLongAlt(latitude, longitude, altitude);
+                Log.d("ControlApiTest", "lookAt(" + latLongAlt + ", true)");
+                ControlApi.getApi(this.drone).lookAt(latLongAlt, true, new AbstractCommandListener() {
+                    @Override
+                    public void onSuccess() {
+                        alertUser("Success: Look at.");
+                    }
+                    @Override
+                    public void onError(int i) {
+                        alertUser("Error: Look at.");
+                    }
+                    @Override
+                    public void onTimeout() {
+                        alertUser("Timeout: Look at.");
+                    }
+                });
+            } catch (Exception e) {
+                alertUser("Exception: Look at.");
+            }
+        }
+    }
+
+    // add climb to
+    public void onGetClimbTo(View view){
+        EditText climbTo = (EditText)findViewById(R.id.climbToEditText);
+        Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
+        Home droneHome = this.drone.getAttribute(AttributeType.HOME);
+        climbTo.setText(String.format("%3.1f", droneAltitude.getAltitude() - droneHome.getCoordinate().getAltitude()));
+    }
+    public void onSetClimbTo(View view) {
+        EditText climbTo = (EditText)findViewById(R.id.climbToEditText);
+        if (!climbTo.getText().toString().isEmpty()) {
+            try {
+                double altitude = Double.parseDouble(climbTo.getText().toString());
+                // Climb to
+                Log.d("ControlApiTest", "climbTo(" + altitude + ")");
+                ControlApi.getApi(this.drone).climbTo(altitude);
+                alertUser("Success: Climb to.");
+            } catch (Exception e) {
+                alertUser("Exception: Climb to.");
+            }
+        }
+    }
+
+    // add turn to
+    public void onSetTurnTo(View view) {
+        EditText angleText = (EditText)findViewById(R.id.turnToEditTextAngle);
+        EditText rateText = (EditText)findViewById(R.id.turnToEditTextRate);
+        if (!angleText.getText().toString().isEmpty() && !rateText.getText().toString().isEmpty()) {
+            try {
+                float angle = Float.parseFloat(angleText.getText().toString());
+                float rate = Float.parseFloat(rateText.getText().toString());
+                // Turn to
+                Log.d("ControlApiTest", "turnTo(" + angle + ", " + rate + ", false)");
+                ControlApi.getApi(this.drone).turnTo(angle, rate, false, new AbstractCommandListener() {
+                    @Override
+                    public void onSuccess() {
+                        alertUser("Success: Turn to.");
+                    }
+                    @Override
+                    public void onError(int i) {
+                        alertUser("Error: Turn to.");
+                    }
+                    @Override
+                    public void onTimeout() {
+                        alertUser("Timeout: Turn to.");
+                    }
+                });
+            } catch (Exception e) {
+                alertUser("Exception: Turn to.");
+            }
+        }
+    }
+
+    // add manual
+    public void onSetManual(View view) {
+        EditText textX = (EditText)findViewById(R.id.manualEditTextX);
+        EditText textY = (EditText)findViewById(R.id.manualEditTextY);
+        EditText textZ = (EditText)findViewById(R.id.manualEditTextZ);
+        if (!textX.getText().toString().isEmpty() && !textY.getText().toString().isEmpty() && !textZ.getText().toString().isEmpty()) {
+            try {
+                float x = Float.parseFloat(textX.getText().toString());
+                float y = Float.parseFloat(textY.getText().toString());
+                float z = Float.parseFloat(textZ.getText().toString());
+                // Manual
+                Log.d("ControlApiTest", "manualControl(" + x + ", " + y + ", " + z + ")");
+                ControlApi.getApi(this.drone).manualControl(x, y, z, new AbstractCommandListener() {
+                    @Override
+                    public void onSuccess() {
+                        alertUser("Success: Manual.");
+                    }
+                    @Override
+                    public void onError(int i) {
+                        alertUser("Error: Manual.");
+                    }
+                    @Override
+                    public void onTimeout() {
+                        alertUser("Timeout: Manual.");
+                    }
+                });
+            } catch (Exception e) {
+                alertUser("Exception: Manual.");
+            }
+        }
+    }
+
     // DroneKit-Android Listener
     // ==========================================================
 
@@ -284,7 +533,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
     @Override
     public void onDroneEvent(String event, Bundle extras) {
-        System.out.println(event);
         switch (event) {
             case AttributeEvent.STATE_CONNECTED:
                 alertUser("Drone Connected");
@@ -354,7 +602,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
     public void onBtnConnectTap(View view) {
         if (this.drone.isConnected()) {
-            alertUser("Drone already connected!");
             this.drone.disconnect();
         } else {
             Spinner connectionSelector = (Spinner) findViewById(R.id.selectConnectionType);
@@ -362,9 +609,8 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
             ConnectionParameter connectionParams = selectedConnectionType == ConnectionType.TYPE_USB
                 ? ConnectionParameter.newUsbConnection(null)
-                : ConnectionParameter.newUdpConnection(null); // ConnectionParameter.newTcpConnection("192.168.43.173", null);
+                : ConnectionParameter.newUdpConnection(null);
 
-            alertUser("Let's connect!");
             this.drone.connect(connectionParams);
         }
 
@@ -513,7 +759,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
             LatLongAlt vehicle3DPosition = new LatLongAlt(vehiclePosition.getLatitude(), vehiclePosition.getLongitude(), vehicleAltitude);
             Home droneHome = this.drone.getAttribute(AttributeType.HOME);
             distanceFromHome = distanceBetweenPoints(droneHome.getCoordinate(), vehicle3DPosition);
-            // add 3d
         } else {
             distanceFromHome = 0;
         }
@@ -540,7 +785,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     // ==========================================================
 
     protected void alertUser(String message) {
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         Log.d(TAG, message);
     }
 
